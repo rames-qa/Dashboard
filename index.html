@@ -1,1 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Enterprise Automation Dashboard</title>
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --pass-green: #10b981;
+            --fail-red: #ef4444;
+            --skip-amber: #f59e0b;
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-light); display: flex; }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--panel-bg);
+            height: 100vh;
+            position: fixed;
+            padding: 20px;
+            border-right: 1px solid #334155;
+        }
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 30px; color: #38bdf8; }
+        .sidebar ul { list-style: none; }
+        .sidebar ul li { padding: 12px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; color: var(--text-muted); }
+        .sidebar ul li.active, .sidebar ul li:hover { background: #334155; color: var(--text-light); }
+
+        /* Main Content Grid */
+        .main-container {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            padding: 30px;
+        }
+
+        .header-summary { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        /* KPI Cards Layout */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card { background: var(--panel-bg); padding: 20px; border-radius: 10px; border: 1px solid #334155; }
+        .card .title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; }
+        .card .value { font-size: 2rem; font-weight: bold; margin-top: 10px; }
+
+        /* Multi-Role Split Grid */
+        .split-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .table-panel { background: var(--panel-bg); padding: 20px; border-radius: 10px; border: 1px solid #334155; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left; }
+        th, td { padding: 12px; border-bottom: 1px solid #334155; }
+        th { color: var(--text-muted); font-size: 0.9rem; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
+        .badge-pass { background: rgba(16, 185, 129, 0.2); color: var(--pass-green); }
+        .badge-fail { background: rgba(239, 68, 68, 0.2); color: var(--fail-red); }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <h2>QA Control Center</h2>
+        <ul>
+            <li class="active">🏠 Home Dashboard</li>
+            <li>🚀 Test Execution</li>
+            <li>⚙️ Jenkins Builds</li>
+            <li>🐛 Jira Defects</li>
+            <li>📊 Release Status</li>
+        </ul>
+    </nav>
+
+    <main class="main-container">
+        <div class="header-summary">
+            <div>
+                <h1>Enterprise Execution Health</h1>
+                <p style="color: var(--text-muted)">Cross-team operational visibility</p>
+            </div>
+        </div>
+
+        <section class="kpi-grid">
+            <div class="card" style="border-left: 4px solid #38bdf8;">
+                <div class="title">Total Run Executions</div>
+                <div class="value">5,600</div>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--pass-green);">
+                <div class="title">Automation Pass Rate</div>
+                <div class="value" style="color: var(--pass-green);">97.6%</div>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--fail-red);">
+                <div class="title">Open Blocker Defects</div>
+                <div class="value" style="color: var(--fail-red);">12</div>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--skip-amber);">
+                <div class="title">Deployment Environment</div>
+                <div class="value" style="font-size: 1.5rem; margin-top: 15px;">STAGE-QA-02</div>
+            </div>
+        </section>
+
+        <section class="split-grid">
+            <div class="table-panel">
+                <h3>Automation Suite Execution Status</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Suite Name</th>
+                            <th>Total Tests</th>
+                            <th>Passed</th>
+                            <th>Failed</th>
+                            <th>Status Badge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Regression Test Cycle</td>
+                            <td>4200</td>
+                            <td>4110</td>
+                            <td>90</td>
+                            <td><span class="badge badge-pass">PASSED (95%+)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Core Smoke Pipeline</td>
+                            <td>150</td>
+                            <td>142</td>
+                            <td>8</td>
+                            <td><span class="badge badge-fail">STABLE FAILURE</span></td>
+                        </tr>
+                        <tr>
+                            <td>RestAssured API Layer</td>
+                            <td>1250</td>
+                            <td>1250</td>
+                            <td>0</td>
+                            <td><span class="badge badge-pass">100% SUCCESS</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-panel">
+                <h3>CI/CD Engine Links</h3>
+                <div style="margin-top:15px; display:flex; flex-direction:column; gap:12px;">
+                    <div style="background:#0f172a; padding:12px; border-radius:6px; display:flex; justify-content:space-between;">
+                        <span>Jenkins Pipeline:</span>
+                        <span style="color: var(--pass-green)">● Build #1128 Successful</span>
+                    </div>
+                    <div style="background:#0f172a; padding:12px; border-radius:6px; display:flex; justify-content:space-between;">
+                        <span>SonarQube Gateway:</span>
+                        <span style="color: var(--pass-green)">✔ Passed</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
