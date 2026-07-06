@@ -3,41 +3,759 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QA Enterprise Automation Dashboard</title>
+    <title>QA Enterprise Automation Hub</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           1. VARIABLE CORE ARCHITECTURE & THEME MATRIX
+           ========================================================================== */
+        :root {
+            --sidebar-width: 280px;
+            --bg-canvas: #090d16;
+            --panel-bg: #131b2e;
+            --panel-bg-alt: #1e2942;
+            --panel-border: #243454;
+            --panel-border-focus: #3b82f6;
+            
+            --text-main: #f1f5f9;
+            --text-title: #ffffff;
+            --text-muted: #64748b;
+            --text-sub: #94a3b8;
+            
+            /* High-fidelity State Colors */
+            --color-primary: #3b82f6;
+            --color-primary-hover: #2563eb;
+            --color-pass: #10b981;
+            --color-pass-glow: rgba(16, 185, 129, 0.15);
+            --color-fail: #ef4444;
+            --color-fail-glow: rgba(239, 68, 68, 0.15);
+            --color-warn: #f59e0b;
+            --color-warn-glow: rgba(245, 158, 11, 0.15);
+            --color-info: #06b6d4;
+            
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Custom Scrollbar Infrastructure */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-canvas); }
+        ::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* ==========================================================================
+           2. ENTERPRISE FIXED SIDEBAR APP CONTROLLER
+           ========================================================================== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--panel-bg);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 24px;
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .logo-icon-svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--color-primary);
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+        }
+
+        .logo-area h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-title);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-menu {
+            flex-grow: 1;
+            margin-top: 32px;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            color: var(--text-sub);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s var(--easing-standard);
+            cursor: pointer;
+        }
+
+        .nav-link-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-link-left svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            color: var(--text-title);
+        }
+
+        .nav-item.active .nav-link {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--color-primary);
+            font-weight: 600;
+            box-shadow: inset 3px 0 0 var(--color-primary);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .nav-badge {
+            background: var(--color-fail);
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .sidebar-footer {
+            padding-top: 20px;
+            border-top: 1px solid var(--panel-border);
+        }
+
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-engine {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-info));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #fff;
+        }
+
+        .profile-info .user-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-title);
+        }
+
+        .profile-info .system-status {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .pulse-indicator {
+            width: 8px;
+            height: 8px;
+            background-color: var(--color-pass);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pulse-indicator::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            border-radius: inherit;
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        /* ==========================================================================
+           3. MAIN VIEWPORT CANVAS LAYER
+           ========================================================================== */
+        .main-container {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        /* Advanced App Dashboard Header Framework */
+        .header-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 36px;
+            gap: 20px;
+        }
+
+        .title-block h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--text-title);
+            letter-spacing: -0.03em;
+        }
+
+        .title-block p {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+
+        .action-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            transition: all 0.2s var(--easing-standard);
+        }
+
+        .btn svg { width: 16px; height: 16px; fill: currentColor; }
+        
+        .btn-primary { background-color: var(--color-primary); color: #fff; }
+        .btn-primary:hover { background-color: var(--color-primary-hover); transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-secondary { background-color: var(--panel-bg); color: var(--text-main); border-color: var(--panel-border); }
+        .btn-secondary:hover { background-color: var(--panel-bg-alt); border-color: var(--text-muted); }
+
+        /* ==========================================================================
+           4. GLOW ACCENT MATRIX KPI METRIC SYSTEM
+           ========================================================================== */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            padding: 24px;
+            border-radius: 14px;
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s var(--easing-standard);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 3px;
+        }
+
+        .card-info::before { background: var(--color-info); }
+        .card-success::before { background: var(--color-pass); }
+        .card-danger::before { background: var(--color-fail); }
+        .card-warning::before { background: var(--color-warn); }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 30px -4px rgba(0,0,0,0.6);
+        }
+
+        .card-header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card .title {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        .card-icon-wrapper {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-info .card-icon-wrapper { background: rgba(6, 182, 212, 0.1); fill: var(--color-info); }
+        .card-success .card-icon-wrapper { background: rgba(16, 185, 129, 0.1); fill: var(--color-pass); }
+        .card-danger .card-icon-wrapper { background: rgba(239, 68, 68, 0.1); fill: var(--color-fail); }
+        .card-warning .card-icon-wrapper { background: rgba(245, 158, 11, 0.1); fill: var(--color-warn); }
+
+        .card-icon-wrapper svg { width: 16px; height: 16px; }
+
+        .card .value {
+            font-size: 2.1rem;
+            font-weight: 700;
+            margin-top: 16px;
+            color: var(--text-title);
+            letter-spacing: -0.03em;
+        }
+
+        .card-meta-label {
+            margin-top: 12px;
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trend-up { color: var(--color-pass); font-weight: 600; }
+
+        /* ==========================================================================
+           5. DATA CONSOLE GRID BLOCKS (TABLES, CHART PIPELINES)
+           ========================================================================== */
+        .split-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .side-panel-group {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .table-panel {
+            background: var(--panel-bg);
+            padding: 28px;
+            border-radius: 14px;
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--shadow-card);
+        }
+
+        .panel-header-complex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .panel-header-complex h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-title);
+            letter-spacing: -0.01em;
+        }
+
+        /* Live Data Filter Search Subsystem */
+        .search-input-wrapper {
+            position: relative;
+            width: 240px;
+        }
+
+        .search-input-wrapper svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            fill: var(--text-muted);
+        }
+
+        .search-control {
+            width: 100%;
+            background-color: var(--bg-canvas);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 8px 12px 8px 34px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: var(--font-sans);
+            transition: all 0.2s var(--easing-standard);
+        }
+
+        .search-control:focus {
+            border-color: var(--panel-border-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        /* Datatable Elements Structuring */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 16px;
+            font-size: 0.88rem;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            background-color: rgba(9, 13, 22, 0.4);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tbody tr { transition: background-color 0.15s linear; }
+        tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+
+        .suite-identity {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .suite-name {
+            font-weight: 600;
+            color: var(--text-title);
+        }
+
+        .suite-meta-engine {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .metric-mono { font-family: var(--font-mono); font-weight: 500; }
+
+        /* Modernized Micro Badges */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.72rem;
+            letter-spacing: 0.02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+
+        .badge-pass { background: var(--color-pass-glow); color: var(--color-pass); }
+        .badge-pass::before { background: var(--color-pass); }
+
+        .badge-fail { background: var(--color-fail-glow); color: var(--color-fail); }
+        .badge-fail::before { background: var(--color-fail); }
+
+        /* CI/CD Integration Hub List Nodes */
+        .engine-links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .engine-item {
+            background: var(--bg-canvas);
+            padding: 16px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.88rem;
+            border: 1px solid var(--panel-border);
+        }
+
+        .engine-label-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .engine-icon-frame {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            fill: var(--text-sub);
+        }
+
+        .engine-icon-frame svg { width: 16px; height: 16px; }
+
+        .engine-title-sub { display: flex; flex-direction: column; gap: 2px; }
+        .engine-title-sub span:first-child { font-weight: 600; color: var(--text-title); }
+        .engine-title-sub span:last-child { font-size: 0.75rem; color: var(--text-muted); }
+
+        .engine-value {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        /* Multi-weight Data Segmentation Graphic Component */
+        .visual-progress-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        .segmented-track {
+            width: 100%;
+            height: 12px;
+            background-color: var(--bg-canvas);
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .segment-fill { height: 100%; transition: width 0.5s ease-in-out; }
+        .segment-pass { background-color: var(--color-pass); }
+        .segment-fail { background-color: var(--color-fail); }
+        .segment-warn { background-color: var(--color-warn); }
+
+        /* Legend Sub-matrix Blueprint */
+        .progress-legend-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .legend-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .legend-dot-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .legend-val { font-size: 0.88rem; font-weight: 600; color: var(--text-title); padding-left: 12px; }
+
+        /* ==========================================================================
+           6. LIVE FEED PIPELINE STREAM AGGREGATOR
+           ========================================================================== */
+        .live-stream-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .stream-node {
+            display: flex;
+            gap: 16px;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .stream-node:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 15px; top: 32px; width: 2px; height: calc(100% - 20px);
+            background: var(--panel-border);
+        }
+
+        .stream-icon-marker {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-canvas);
+            border: 2px solid var(--panel-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .stream-icon-marker svg { width: 12px; height: 12px; }
+        .node-success { border-color: var(--color-pass); fill: var(--color-pass); }
+        .node-fail { border-color: var(--color-fail); fill: var(--color-fail); }
+
+        .stream-content-block {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-top: 4px;
+        }
+
+        .stream-msg { font-size: 0.88rem; font-weight: 500; color: var(--text-title); }
+        .stream-msg strong { color: var(--color-primary); font-weight: 600; }
+        .stream-time-stamp { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
+
+        /* ==========================================================================
+           7. MEDIA QUERY TRANSLATION RESPONSIVE MATRIX
+           ========================================================================== */
+        @media (max-width: 1250px) {
+            .split-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-right: none; border-bottom: 1px solid var(--panel-border); }
+            .nav-menu { margin-top: 16px; display: none; } /* Dynamic collapsed handling would apply here */
+            .main-container { margin-left: 0; width: 100%; padding: 20px; }
+            .header-summary { flex-direction: column; align-items: flex-start; }
+            .action-block { width: 100%; justify-content: flex-start; }
+        }
+    </style>
 </head>
 <body>
 
-    <aside class="sidebar">
+    <aside class="sidebar" aria-label="System Navigation Dashboard">
         <div class="logo-area">
-            <div class="logo-icon"></div>
+            <svg class="logo-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 9h2v2h-2zm0 4h2v2h-2zm-14-4h2v2H5zm0 4h2v2H5zM12 2c4.97 0 9 4.03 9 9 0 2.12-.74 4.07-1.97 5.61L14.35 11H17v-1h-4.17l-1.42-1.42V4.35L11 3.23V5.5c0 .28-.22.5-.5.5h-1c-.28 0-.5-.22-.5-.5V2c4.97 0 9 4.03 9 9zm-2.39 9.39l-1.42-1.42L3.61 14.56A8.956 8.956 0 0 0 3 11c0-4.97 4.03-9 9-9v2.35L10.59 5.76V8.5c0 .28-.22.5-.5.5h-1c-.28 0-.5-.22-.5-.5V6.17L7.17 7.59 12 14.35V17c-.28 0-.5-.22-.5-.5v-4.17l-.89-.89z"/>
+            </svg>
             <h2>QA Control Center</h2>
         </div>
-        <nav class="nav-menu">
-            <ul>
+        
+        <nav class="nav-menu" aria-label="Primary Platform Sections">
+            <ul class="nav-list">
                 <li class="nav-item active">
-                    <span class="nav-icon">🏠</span> Home Dashboard
+                    <a class="nav-link">
+                        <div class="nav-link-left">
+                            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                            Home Dashboard
+                        </div>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <span class="nav-icon">🚀</span> Test Execution
+                    <a class="nav-link">
+                        <div class="nav-link-left">
+                            <svg viewBox="0 0 24 24"><path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42L16.86 11H5v2z"/></svg>
+                            Test Execution
+                        </div>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <span class="nav-icon">⚙️</span> Jenkins Builds
+                    <a class="nav-link">
+                        <div class="nav-link-left">
+                            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                            Jenkins Pipelines
+                        </div>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <span class="nav-icon">🐛</span> Jira Defects
+                    <a class="nav-link">
+                        <div class="nav-link-left">
+                            <svg viewBox="0 0 24 24"><path d="M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5c-.49 0-.96.06-1.42.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z"/></svg>
+                            Jira Defects
+                        </div>
+                        <span class="nav-badge" id="sidebar-defect-badge">12</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <span class="nav-icon">📊</span> Release Status
+                    <a class="nav-link">
+                        <div class="nav-link-left">
+                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                            Release Status
+                        </div>
+                    </a>
                 </li>
             </ul>
         </nav>
+
         <div class="sidebar-footer">
-            <p class="user-name">SDET Platform</p>
-            <p class="system-status"><span class="pulse-indicator"></span> Connected</p>
+            <div class="profile-card">
+                <div class="avatar-engine">SD</div>
+                <div class="profile-info">
+                    <p class="user-name">SDET Platform</p>
+                    <p class="system-status"><span class="pulse-indicator"></span> Gateway Live</p>
+                </div>
+            </div>
         </div>
     </aside>
 
@@ -46,37 +764,78 @@
         <header class="header-summary">
             <div class="title-block">
                 <h1>Enterprise Execution Health</h1>
-                <p>Cross-team operational visibility & automation data streams.</p>
+                <p>Cross-team operational visibility & automated pipeline telemetry streams.</p>
             </div>
             <div class="action-block">
-                <button class="btn btn-secondary">Export CSV</button>
-                <button class="btn btn-primary">Trigger Pipeline</button>
+                <button class="btn btn-secondary" onclick="alert('Exporting dataset payload to CSV...')">
+                    <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                    Export CSV
+                </button>
+                <button class="btn btn-primary" id="pipelineTriggerBtn">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                    Trigger Pipeline
+                </button>
             </div>
         </header>
 
-        <section class="kpi-grid">
+        <section class="kpi-grid" aria-label="Telemetry Metrics Overview">
             <div class="card card-info">
                 <div class="card-inner">
-                    <span class="title">Total Run Executions</span>
-                    <span class="value">5,600</span>
+                    <div class="card-header-inner">
+                        <span class="title">Total Run Executions</span>
+                        <div class="card-icon-wrapper">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        </div>
+                    </div>
+                    <span class="value" id="kpi-total-runs">5,600</span>
+                    <div class="card-meta-label">
+                        <span class="trend-up">↑ 12.4%</span> vs previous cycle
+                    </div>
                 </div>
             </div>
+            
             <div class="card card-success">
                 <div class="card-inner">
-                    <span class="title">Automation Pass Rate</span>
-                    <span class="value text-success">97.6%</span>
+                    <div class="card-header-inner">
+                        <span class="title">Automation Pass Rate</span>
+                        <div class="card-icon-wrapper">
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </div>
+                    </div>
+                    <span class="value" style="color: var(--color-pass);" id="kpi-pass-rate">97.6%</span>
+                    <div class="card-meta-label">
+                        Confidence threshold: <strong style="color:var(--color-pass)">95.0%</strong>
+                    </div>
                 </div>
             </div>
+
             <div class="card card-danger">
                 <div class="card-inner">
-                    <span class="title">Open Blocker Defects</span>
-                    <span class="value text-danger">12</span>
+                    <div class="card-header-inner">
+                        <span class="title">Open Blocker Defects</span>
+                        <div class="card-icon-wrapper">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        </div>
+                    </div>
+                    <span class="value" style="color: var(--color-fail);" id="kpi-blockers">12</span>
+                    <div class="card-meta-label">
+                        Requires rapid triage assignment
+                    </div>
                 </div>
             </div>
+
             <div class="card card-warning">
                 <div class="card-inner">
-                    <span class="title">Deployment Env</span>
-                    <span class="value text-env">STAGE-QA-02</span>
+                    <div class="card-header-inner">
+                        <span class="title">Deployment Env</span>
+                        <div class="card-icon-wrapper">
+                            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+                        </div>
+                    </div>
+                    <span class="value metric-mono" style="font-size: 1.4rem; margin-top: 24px;">STAGE-QA-02</span>
+                    <div class="card-meta-label">
+                        K8s Cluster Node Status: <span style="color:var(--color-pass)">Stable</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -84,40 +843,62 @@
         <section class="split-grid">
             
             <div class="table-panel">
-                <div class="panel-header">
-                    <h3>Automation Suite Execution Status</h3>
+                <div class="panel-header-complex">
+                    <div>
+                        <h3>Automation Suite Execution Status</h3>
+                    </div>
+                    <div class="search-input-wrapper">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <input type="text" class="search-control" id="tableFilterInput" placeholder="Filter suites dynamic query...">
+                    </div>
                 </div>
+                
                 <div class="table-responsive">
-                    <table>
+                    <table id="automationSuitesTable">
                         <thead>
                             <tr>
-                                <th>Suite Name</th>
-                                <th>Total Tests</th>
+                                <th>Suite Context Framework</th>
+                                <th>Total Cases</th>
                                 <th>Passed</th>
                                 <th>Failed</th>
-                                <th>Status Badge</th>
+                                <th>Runtime Status Badging</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="suite-name">Regression Test Cycle</td>
-                                <td>4,200</td>
-                                <td class="text-success">4,110</td>
-                                <td class="text-danger">90</td>
-                                <td><span class="badge badge-pass">PASSED (95%+)</span></td>
+                            <tr class="suite-row">
+                                <td>
+                                    <div class="suite-identity">
+                                        <span class="suite-name">Regression Test Cycle</span>
+                                        <span class="suite-meta-engine">playwright-typescript / build-matrix</span>
+                                    </div>
+                                </td>
+                                <td class="metric-mono">4,200</td>
+                                <td class="metric-mono" style="color: var(--color-pass)">4,110</td>
+                                <td class="metric-mono" style="color: var(--color-fail)">90</td>
+                                <td><span class="badge badge-pass">PASSED (97.8%)</span></td>
                             </tr>
-                            <tr>
-                                <td class="suite-name">Core Smoke Pipeline</td>
-                                <td>150</td>
-                                <td class="text-success">142</td>
-                                <td class="text-danger">8</td>
+                            <tr class="suite-row">
+                                <td>
+                                    <div class="suite-identity">
+                                        <span class="suite-name">Core Smoke Pipeline</span>
+                                        <span class="suite-meta-engine">selenium-java-testng / core-critical</span>
+                                    </div>
+                                </td>
+                                <td class="metric-mono">150</td>
+                                <td class="metric-mono" style="color: var(--color-pass)">142</td>
+                                <td class="metric-mono" style="color: var(--color-fail)">8</td>
                                 <td><span class="badge badge-fail">STABLE FAILURE</span></td>
                             </tr>
-                            <tr>
-                                <td class="suite-name">RestAssured API Layer</td>
-                                <td>1,250</td>
-                                <td class="text-success">1,250</td>
-                                <td class="text-danger">0</td>
+                            <tr class="suite-row">
+                                <td>
+                                    <div class="suite-identity">
+                                        <span class="suite-name">RestAssured API Layer</span>
+                                        <span class="suite-meta-engine">restassured-junit5 / edge-routing</span>
+                                    </div>
+                                </td>
+                                <td class="metric-mono">1,250</td>
+                                <td class="metric-mono" style="color: var(--color-pass)">1,250</td>
+                                <td class="metric-mono" style="color: var(--color-fail)">0</td>
                                 <td><span class="badge badge-pass">100% SUCCESS</span></td>
                             </tr>
                         </tbody>
@@ -128,37 +909,101 @@
             <div class="side-panel-group">
                 
                 <div class="table-panel">
-                    <div class="panel-header">
+                    <div class="panel-header-complex">
                         <h3>CI/CD Engine Links</h3>
                     </div>
+                    
                     <div class="engine-links-list">
                         <div class="engine-item">
-                            <span class="engine-label">Jenkins Pipeline:</span>
-                            <span class="engine-value text-success">
-                                <span class="dot dot-success"></span> Build #1128 Passed
-                            </span>
+                            <div class="engine-label-block">
+                                <div class="engine-icon-frame">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                                </div>
+                                <div class="engine-title-sub">
+                                    <span>Jenkins Pipeline</span>
+                                    <span>Branch: release/main</span>
+                                </div>
+                            </div>
+                            <span class="engine-value" style="color: var(--color-pass)">#1128 Passed</span>
                         </div>
+
                         <div class="engine-item">
-                            <span class="engine-label">SonarQube Gateway:</span>
-                            <span class="engine-value text-success">
-                                <span class="dot dot-success"></span> Quality Gate Passed
-                            </span>
+                            <div class="engine-label-block">
+                                <div class="engine-icon-frame">
+                                    <svg viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zm1-15h-2v2h2V7zm0 4h-2v6h2v-6z"/></svg>
+                                </div>
+                                <div class="engine-title-sub">
+                                    <span>SonarQube Quality Gate</span>
+                                    <span>Coverage threshold</span>
+                                </div>
+                            </div>
+                            <span class="engine-value" style="color: var(--color-pass)">Passed A+</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="table-panel">
-                    <div class="panel-header">
-                        <h3>Run Target Balance</h3>
+                    <div class="panel-header-complex">
+                        <h3>Run Target Balance Weight</h3>
                     </div>
+                    
                     <div class="visual-progress-stack">
-                        <div class="progress-bar-container">
-                            <div class="progress-labels">
-                                <span>Execution Pass Weights</span>
-                                <span>97.6%</span>
+                        <div class="progress-labels">
+                            <span>Composite Distribution</span>
+                            <span class="metric-mono">97.6% Global Reliability</span>
+                        </div>
+                        
+                        <div class="segmented-track">
+                            <div class="segment-fill segment-pass" style="width: 97.6%" title="Passed Cases"></div>
+                            <div class="segment-fill segment-fail" style="width: 1.8%" title="Failed Cases"></div>
+                            <div class="segment-fill segment-warn" style="width: 0.6%" title="Skipped Cases"></div>
+                        </div>
+
+                        <div class="progress-legend-grid">
+                            <div class="legend-item">
+                                <div class="legend-dot-label">
+                                    <span class="legend-dot" style="background-color: var(--color-pass)"></span>Passed
+                                </div>
+                                <span class="legend-val">5,502</span>
                             </div>
-                            <div class="progress-bar-track">
-                                <div class="progress-bar-fill fill-success" style="width: 97.6%"></div>
+                            <div class="legend-item">
+                                <div class="legend-dot-label">
+                                    <span class="legend-dot" style="background-color: var(--color-fail)"></span>Failed
+                                </div>
+                                <span class="legend-val">98</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot-label">
+                                    <span class="legend-dot" style="background-color: var(--color-warn)"></span>Skipped
+                                </div>
+                                <span class="legend-val">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-panel">
+                    <div class="panel-header-complex">
+                        <h3>Live Telemetry Feed</h3>
+                    </div>
+                    
+                    <div class="live-stream-feed" id="liveTelemetryLogFeed">
+                        <div class="stream-node">
+                            <div class="stream-icon-marker node-success">
+                                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            </div>
+                            <div class="stream-content-block">
+                                <p class="stream-msg">Suite <strong>RestAssured API Layer</strong> completely cleared execution metrics successfully</p>
+                                <span class="stream-time-stamp">Just now</span>
+                            </div>
+                        </div>
+                        <div class="stream-node">
+                            <div class="stream-icon-marker node-fail">
+                                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                            </div>
+                            <div class="stream-content-block">
+                                <p class="stream-msg">Suite <strong>Core Smoke Pipeline</strong> encountered 8 runtime assert infrastructure exceptions</p>
+                                <span class="stream-time-stamp">14m ago</span>
                             </div>
                         </div>
                     </div>
@@ -168,5 +1013,83 @@
         </section>
     </main>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tableSearchInput = document.getElementById("tableFilterInput");
+            const structuralRows = document.querySelectorAll(".suite-row");
+            const executionPipelineTrigger = document.getElementById("pipelineTriggerBtn");
+            const logFeedTelemetryWrapper = document.getElementById("liveTelemetryLogFeed");
+            
+            // Core Metric KPIs Dom Hook References
+            const kpiTotalCountValue = document.getElementById("kpi-total-runs");
+            const kpiBlockersCountValue = document.getElementById("kpi-blockers");
+
+            /* Component Action 1: Client Data Array Filter Search Mechanics */
+            tableSearchInput.addEventListener("input", (event) => {
+                const searchTargetQuery = event.target.value.toLowerCase().trim();
+
+                structuralRows.forEach(rowItem => {
+                    const extractedSuiteText = rowItem.querySelector(".suite-name").textContent.toLowerCase();
+                    const extractedMetaText = rowItem.querySelector(".suite-meta-engine").textContent.toLowerCase();
+                    
+                    if (extractedSuiteText.includes(searchTargetQuery) || extractedMetaText.includes(searchTargetQuery)) {
+                        rowItem.style.display = "";
+                    } else {
+                        rowItem.style.display = "none";
+                    }
+                });
+            });
+
+            /* Component Action 2: Trigger Framework Async Execution Pipeline Emulation */
+            executionPipelineTrigger.addEventListener("click", () => {
+                executionPipelineTrigger.disabled = true;
+                executionPipelineTrigger.textContent = "Processing Stream Engine...";
+                executionPipelineTrigger.style.opacity = "0.6";
+
+                setTimeout(() => {
+                    // Update Internal State Values Dynamically
+                    let numericalTotalRuns = parseInt(kpiTotalCountValue.textContent.replace(/,/g, ''));
+                    numericalTotalRuns += 350;
+                    kpiTotalCountValue.textContent = numericalTotalRuns.toLocaleString();
+
+                    // Instantly inject simulated status node element to upper context tree container
+                    const newlyGeneratedLogStreamNode = document.createElement("div");
+                    newlyGeneratedLogStreamNode.className = "stream-node";
+                    newlyGeneratedLogStreamNode.innerHTML = `
+                        <div class="stream-icon-marker node-success" style="border-color: var(--color-info);">
+                            <svg viewBox="0 0 24 24" style="fill: var(--color-info);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        </div>
+                        <div class="stream-content-block">
+                            <p class="stream-msg">Dispatched webhook call routine targeting K8s <strong>STAGE-QA-02</strong> node pipeline entry point</p>
+                            <span class="stream-time-stamp">Arbitrary execution loop triggered</span>
+                        </div>
+                    `;
+                    logFeedTelemetryWrapper.insertBefore(newlyGeneratedLogStreamNode, logFeedTelemetryWrapper.firstChild);
+
+                    // Re-instantiate control interactive capability values
+                    executionPipelineTrigger.disabled = false;
+                    executionPipelineTrigger.style.opacity = "1";
+                    executionPipelineTrigger.innerHTML = `
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                        Trigger Pipeline
+                    `;
+                }, 1200);
+            });
+
+            /* Component Action 3: Automation System Ticker Simulation Polling Loop */
+            setInterval(() => {
+                if (Math.random() > 0.6) {
+                    let numericalBlockerCounts = parseInt(kpiBlockersCountValue.textContent);
+                    if (numericalBlockerCounts > 5 && Math.random() > 0.5) {
+                        numericalBlockerCounts--;
+                    } else {
+                        numericalBlockerCounts++;
+                    }
+                    kpiBlockersCountValue.textContent = numericalBlockerCounts;
+                    document.getElementById("sidebar-defect-badge").textContent = numericalBlockerCounts;
+                }
+            }, 8000);
+        });
+    </script>
 </body>
 </html>
