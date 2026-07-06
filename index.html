@@ -15,6 +15,7 @@
            ========================================================================== */
         :root {
             --sidebar-width: 280px;
+            --mobile-nav-height: 68px;
             --bg-canvas: #090d16;
             --panel-bg: #131b2e;
             --panel-bg-alt: #1e2942;
@@ -97,6 +98,7 @@
             height: 28px;
             fill: var(--color-primary);
             filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+            flex-shrink: 0;
         }
 
         .logo-area h2 {
@@ -142,6 +144,7 @@
             width: 18px;
             height: 18px;
             fill: currentColor;
+            transition: transform 0.2s ease;
         }
 
         .nav-link:hover {
@@ -188,12 +191,20 @@
             font-weight: 700;
             font-size: 0.85rem;
             color: #fff;
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            min-width: 0;
         }
 
         .profile-info .user-name {
             font-size: 0.88rem;
             font-weight: 600;
             color: var(--text-title);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .profile-info .system-status {
@@ -211,6 +222,7 @@
             background-color: var(--color-pass);
             border-radius: 50%;
             position: relative;
+            flex-shrink: 0;
         }
 
         .pulse-indicator::after {
@@ -258,17 +270,20 @@
             font-size: 0.95rem;
             color: var(--text-sub);
             margin-top: 4px;
+            max-width: 700px;
         }
 
         .action-block {
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-shrink: 0;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             padding: 10px 20px;
             font-size: 0.88rem;
@@ -278,6 +293,7 @@
             cursor: pointer;
             font-family: var(--font-sans);
             transition: all 0.2s var(--easing-standard);
+            white-space: nowrap;
         }
 
         .btn svg { width: 16px; height: 16px; fill: currentColor; }
@@ -348,6 +364,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .card-info .card-icon-wrapper { background: rgba(6, 182, 212, 0.1); fill: var(--color-info); }
@@ -552,6 +569,7 @@
             align-items: center;
             justify-content: center;
             fill: var(--text-sub);
+            flex-shrink: 0;
         }
 
         .engine-icon-frame svg { width: 16px; height: 16px; }
@@ -675,6 +693,7 @@
         .stream-msg strong { color: var(--color-primary); font-weight: 600; }
         .stream-time-stamp { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
 
+
         /* ==========================================================================
            7. MEDIA QUERY TRANSLATION RESPONSIVE MATRIX
            ========================================================================== */
@@ -683,12 +702,179 @@
         }
 
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-right: none; border-bottom: 1px solid var(--panel-border); }
-            .nav-menu { margin-top: 16px; display: none; } /* Dynamic collapsed handling would apply here */
-            .main-container { margin-left: 0; width: 100%; padding: 20px; }
-            .header-summary { flex-direction: column; align-items: flex-start; }
-            .action-block { width: 100%; justify-content: flex-start; }
+            body { 
+                flex-direction: column; 
+                padding-bottom: calc(var(--mobile-nav-height) + 10px); /* Leave room for sticky app bar */
+            }
+
+            /* Transform Desktop Sidebar to Mobile Bottom Application Dock */
+            .sidebar { 
+                width: 100%; 
+                height: var(--mobile-nav-height); 
+                position: fixed; 
+                top: auto;
+                bottom: 0; 
+                left: 0;
+                right: 0;
+                padding: 0 12px; 
+                border-right: none; 
+                border-top: 1px solid var(--panel-border); 
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-around;
+                box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
+            }
+
+            /* Hide Desktop branding/footers in sticky mobile utility dock */
+            .logo-area, .sidebar-footer { 
+                display: none; 
+            }
+
+            .nav-menu { 
+                margin-top: 0; 
+                width: 100%;
+            }
+
+            .nav-list {
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                width: 100%;
+                gap: 0;
+            }
+
+            .nav-link {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                padding: 8px;
+                font-size: 0.68rem;
+                color: var(--text-muted);
+                text-align: center;
+            }
+
+            .nav-link-left {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .nav-link-left svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .nav-item.active .nav-link {
+                background: transparent;
+                color: var(--color-primary);
+                box-shadow: none;
+                font-weight: 500;
+            }
+
+            /* Absolute positioning rules for badge alert notification counters on mobile views */
+            .nav-item {
+                position: relative;
+            }
+            .nav-badge {
+                position: absolute;
+                top: 2px;
+                right: 4px;
+                font-size: 0.6rem;
+                padding: 1px 5px;
+            }
+
+            /* Core Canvas Adjustments */
+            .main-container { 
+                margin-left: 0; 
+                width: 100%; 
+                padding: 24px 16px; 
+            }
+
+            .header-summary { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 16px;
+                margin-bottom: 28px;
+            }
+
+            .title-block h1 {
+                font-size: 1.5rem;
+            }
+
+            .action-block { 
+                width: 100%; 
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+
+            .search-input-wrapper {
+                width: 100%;
+            }
+
+            /* Complete Responsive Table Transformation Blueprint (Anti-Horizontal-Scroll) */
+            .table-responsive, table, mthead, tbody, th, td, tr { 
+                display: block; 
+            }
+            
+            table thead tr { 
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            
+            tr { 
+                border: 1px solid var(--panel-border); 
+                border-radius: 10px;
+                background: rgba(9, 13, 22, 0.4);
+                margin-bottom: 16px;
+                padding: 8px 0;
+            }
+            
+            td { 
+                border: none;
+                border-bottom: 1px solid rgba(36, 52, 84, 0.4); 
+                position: relative;
+                padding-left: 45%; 
+                text-align: right;
+                font-size: 0.85rem;
+            }
+
+            td:last-child {
+                border-bottom: none;
+            }
+            
+            td:before { 
+                position: absolute;
+                top: 50%;
+                left: 16px;
+                transform: translateY(-50%);
+                width: 40%; 
+                padding-right: 10px; 
+                white-space: nowrap;
+                text-align: left;
+                color: var(--text-muted);
+                font-weight: 600;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+            }
+            
+            /* Mapping Table headers back dynamically on CSS Virtual Content elements */
+            td:nth-of-type(1):before { content: "Framework Context"; }
+            td:nth-of-type(2):before { content: "Total Cases"; }
+            td:nth-of-type(3):before { content: "Passed"; }
+            td:nth-of-type(4):before { content: "Failed"; }
+            td:nth-of-type(5):before { content: "Status"; }
+
+            .suite-identity {
+                align-items: flex-end;
+            }
         }
     </style>
 </head>
@@ -708,7 +894,7 @@
                     <a class="nav-link">
                         <div class="nav-link-left">
                             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                            Home Dashboard
+                            <span>Home Dashboard</span>
                         </div>
                     </a>
                 </li>
@@ -716,7 +902,7 @@
                     <a class="nav-link">
                         <div class="nav-link-left">
                             <svg viewBox="0 0 24 24"><path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42L16.86 11H5v2z"/></svg>
-                            Test Execution
+                            <span>Test Execution</span>
                         </div>
                     </a>
                 </li>
@@ -724,7 +910,7 @@
                     <a class="nav-link">
                         <div class="nav-link-left">
                             <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                            Jenkins Pipelines
+                            <span>Pipelines</span>
                         </div>
                     </a>
                 </li>
@@ -732,7 +918,7 @@
                     <a class="nav-link">
                         <div class="nav-link-left">
                             <svg viewBox="0 0 24 24"><path d="M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5c-.49 0-.96.06-1.42.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z"/></svg>
-                            Jira Defects
+                            <span>Jira Defects</span>
                         </div>
                         <span class="nav-badge" id="sidebar-defect-badge">12</span>
                     </a>
@@ -741,7 +927,7 @@
                     <a class="nav-link">
                         <div class="nav-link-left">
                             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-                            Release Status
+                            <span>Releases</span>
                         </div>
                     </a>
                 </li>
@@ -841,7 +1027,6 @@
         </section>
 
         <section class="split-grid">
-            
             <div class="table-panel">
                 <div class="panel-header-complex">
                     <div>
@@ -868,38 +1053,30 @@
                             <tr class="suite-row">
                                 <td>
                                     <div class="suite-identity">
-                                        <span class="suite-name">Regression Test Cycle</span>
-                                        <span class="suite-meta-engine">playwright-typescript / build-matrix</span>
+                                        <span class="suite-name">Core API Regression Suite</span>
+                                        <span class="suite-meta-engine">REST-Assured / JUnit5</span>
                                     </div>
                                 </td>
-                                <td class="metric-mono">4,200</td>
-                                <td class="metric-mono" style="color: var(--color-pass)">4,110</td>
-                                <td class="metric-mono" style="color: var(--color-fail)">90</td>
-                                <td><span class="badge badge-pass">PASSED (97.8%)</span></td>
+                                <td class="metric-mono">1,240</td>
+                                <td class="metric-mono" style="color: var(--color-pass);">1,225</td>
+                                <td class="metric-mono" style="color: var(--color-fail);">15</td>
+                                <td>
+                                    <span class="badge badge-pass">Completed</span>
+                                </td>
                             </tr>
                             <tr class="suite-row">
                                 <td>
                                     <div class="suite-identity">
-                                        <span class="suite-name">Core Smoke Pipeline</span>
-                                        <span class="suite-meta-engine">selenium-java-testng / core-critical</span>
+                                        <span class="suite-name">Web E2E UI Pipeline</span>
+                                        <span class="suite-meta-engine">Selenium / TestNG</span>
                                     </div>
                                 </td>
-                                <td class="metric-mono">150</td>
-                                <td class="metric-mono" style="color: var(--color-pass)">142</td>
-                                <td class="metric-mono" style="color: var(--color-fail)">8</td>
-                                <td><span class="badge badge-fail">STABLE FAILURE</span></td>
-                            </tr>
-                            <tr class="suite-row">
+                                <td class="metric-mono">450</td>
+                                <td class="metric-mono" style="color: var(--color-pass);">412</td>
+                                <td class="metric-mono" style="color: var(--color-fail);">38</td>
                                 <td>
-                                    <div class="suite-identity">
-                                        <span class="suite-name">RestAssured API Layer</span>
-                                        <span class="suite-meta-engine">restassured-junit5 / edge-routing</span>
-                                    </div>
+                                    <span class="badge badge-fail">Failed</span>
                                 </td>
-                                <td class="metric-mono">1,250</td>
-                                <td class="metric-mono" style="color: var(--color-pass)">1,250</td>
-                                <td class="metric-mono" style="color: var(--color-fail)">0</td>
-                                <td><span class="badge badge-pass">100% SUCCESS</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -907,189 +1084,28 @@
             </div>
 
             <div class="side-panel-group">
-                
                 <div class="table-panel">
                     <div class="panel-header-complex">
-                        <h3>CI/CD Engine Links</h3>
+                        <h3>Integration Pipelines</h3>
                     </div>
-                    
                     <div class="engine-links-list">
                         <div class="engine-item">
                             <div class="engine-label-block">
                                 <div class="engine-icon-frame">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
                                 </div>
                                 <div class="engine-title-sub">
-                                    <span>Jenkins Pipeline</span>
-                                    <span>Branch: release/main</span>
+                                    <span>Jenkins CI Main Branch</span>
+                                    <span>Build #1,402</span>
                                 </div>
                             </div>
-                            <span class="engine-value" style="color: var(--color-pass)">#1128 Passed</span>
-                        </div>
-
-                        <div class="engine-item">
-                            <div class="engine-label-block">
-                                <div class="engine-icon-frame">
-                                    <svg viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zm1-15h-2v2h2V7zm0 4h-2v6h2v-6z"/></svg>
-                                </div>
-                                <div class="engine-title-sub">
-                                    <span>SonarQube Quality Gate</span>
-                                    <span>Coverage threshold</span>
-                                </div>
-                            </div>
-                            <span class="engine-value" style="color: var(--color-pass)">Passed A+</span>
+                            <span class="badge badge-pass">Passing</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="table-panel">
-                    <div class="panel-header-complex">
-                        <h3>Run Target Balance Weight</h3>
-                    </div>
-                    
-                    <div class="visual-progress-stack">
-                        <div class="progress-labels">
-                            <span>Composite Distribution</span>
-                            <span class="metric-mono">97.6% Global Reliability</span>
-                        </div>
-                        
-                        <div class="segmented-track">
-                            <div class="segment-fill segment-pass" style="width: 97.6%" title="Passed Cases"></div>
-                            <div class="segment-fill segment-fail" style="width: 1.8%" title="Failed Cases"></div>
-                            <div class="segment-fill segment-warn" style="width: 0.6%" title="Skipped Cases"></div>
-                        </div>
-
-                        <div class="progress-legend-grid">
-                            <div class="legend-item">
-                                <div class="legend-dot-label">
-                                    <span class="legend-dot" style="background-color: var(--color-pass)"></span>Passed
-                                </div>
-                                <span class="legend-val">5,502</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot-label">
-                                    <span class="legend-dot" style="background-color: var(--color-fail)"></span>Failed
-                                </div>
-                                <span class="legend-val">98</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot-label">
-                                    <span class="legend-dot" style="background-color: var(--color-warn)"></span>Skipped
-                                </div>
-                                <span class="legend-val">0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="table-panel">
-                    <div class="panel-header-complex">
-                        <h3>Live Telemetry Feed</h3>
-                    </div>
-                    
-                    <div class="live-stream-feed" id="liveTelemetryLogFeed">
-                        <div class="stream-node">
-                            <div class="stream-icon-marker node-success">
-                                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            </div>
-                            <div class="stream-content-block">
-                                <p class="stream-msg">Suite <strong>RestAssured API Layer</strong> completely cleared execution metrics successfully</p>
-                                <span class="stream-time-stamp">Just now</span>
-                            </div>
-                        </div>
-                        <div class="stream-node">
-                            <div class="stream-icon-marker node-fail">
-                                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                            </div>
-                            <div class="stream-content-block">
-                                <p class="stream-msg">Suite <strong>Core Smoke Pipeline</strong> encountered 8 runtime assert infrastructure exceptions</p>
-                                <span class="stream-time-stamp">14m ago</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </section>
     </main>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const tableSearchInput = document.getElementById("tableFilterInput");
-            const structuralRows = document.querySelectorAll(".suite-row");
-            const executionPipelineTrigger = document.getElementById("pipelineTriggerBtn");
-            const logFeedTelemetryWrapper = document.getElementById("liveTelemetryLogFeed");
-            
-            // Core Metric KPIs Dom Hook References
-            const kpiTotalCountValue = document.getElementById("kpi-total-runs");
-            const kpiBlockersCountValue = document.getElementById("kpi-blockers");
-
-            /* Component Action 1: Client Data Array Filter Search Mechanics */
-            tableSearchInput.addEventListener("input", (event) => {
-                const searchTargetQuery = event.target.value.toLowerCase().trim();
-
-                structuralRows.forEach(rowItem => {
-                    const extractedSuiteText = rowItem.querySelector(".suite-name").textContent.toLowerCase();
-                    const extractedMetaText = rowItem.querySelector(".suite-meta-engine").textContent.toLowerCase();
-                    
-                    if (extractedSuiteText.includes(searchTargetQuery) || extractedMetaText.includes(searchTargetQuery)) {
-                        rowItem.style.display = "";
-                    } else {
-                        rowItem.style.display = "none";
-                    }
-                });
-            });
-
-            /* Component Action 2: Trigger Framework Async Execution Pipeline Emulation */
-            executionPipelineTrigger.addEventListener("click", () => {
-                executionPipelineTrigger.disabled = true;
-                executionPipelineTrigger.textContent = "Processing Stream Engine...";
-                executionPipelineTrigger.style.opacity = "0.6";
-
-                setTimeout(() => {
-                    // Update Internal State Values Dynamically
-                    let numericalTotalRuns = parseInt(kpiTotalCountValue.textContent.replace(/,/g, ''));
-                    numericalTotalRuns += 350;
-                    kpiTotalCountValue.textContent = numericalTotalRuns.toLocaleString();
-
-                    // Instantly inject simulated status node element to upper context tree container
-                    const newlyGeneratedLogStreamNode = document.createElement("div");
-                    newlyGeneratedLogStreamNode.className = "stream-node";
-                    newlyGeneratedLogStreamNode.innerHTML = `
-                        <div class="stream-icon-marker node-success" style="border-color: var(--color-info);">
-                            <svg viewBox="0 0 24 24" style="fill: var(--color-info);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                        </div>
-                        <div class="stream-content-block">
-                            <p class="stream-msg">Dispatched webhook call routine targeting K8s <strong>STAGE-QA-02</strong> node pipeline entry point</p>
-                            <span class="stream-time-stamp">Arbitrary execution loop triggered</span>
-                        </div>
-                    `;
-                    logFeedTelemetryWrapper.insertBefore(newlyGeneratedLogStreamNode, logFeedTelemetryWrapper.firstChild);
-
-                    // Re-instantiate control interactive capability values
-                    executionPipelineTrigger.disabled = false;
-                    executionPipelineTrigger.style.opacity = "1";
-                    executionPipelineTrigger.innerHTML = `
-                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-                        Trigger Pipeline
-                    `;
-                }, 1200);
-            });
-
-            /* Component Action 3: Automation System Ticker Simulation Polling Loop */
-            setInterval(() => {
-                if (Math.random() > 0.6) {
-                    let numericalBlockerCounts = parseInt(kpiBlockersCountValue.textContent);
-                    if (numericalBlockerCounts > 5 && Math.random() > 0.5) {
-                        numericalBlockerCounts--;
-                    } else {
-                        numericalBlockerCounts++;
-                    }
-                    kpiBlockersCountValue.textContent = numericalBlockerCounts;
-                    document.getElementById("sidebar-defect-badge").textContent = numericalBlockerCounts;
-                }
-            }, 8000);
-        });
-    </script>
 </body>
 </html>
