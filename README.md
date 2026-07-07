@@ -5,4 +5,10 @@ An enterprise-grade, high-fidelity Quality Intelligence Platform Dashboard desig
 
 ***Key Architectural Features***
 
-Telemetry Grid Framework: Includes structural visualizers for tracking core testing metrics, automation stability rates, and live blocker matrices.Design Tokens & CSS Custom Properties: Built on a unified modular theme matrix (:root) enabling immediate global adjustments to spacing, typography, panel borders, and real-time state color indicators.High-Performance Typography: Tailored font weights blending Inter for seamless cross-browser UI scannability and JetBrains Mono for low-level technical telemetry arrays, data timestamps, and log values.Dynamic Responsive Translation System: Features a fluid mobile-first responsive layout matrix that reconstructs the structural desktop view into an optimized mobile experience under 768px.🎨 UI Theme & Design PaletteThe dashboard utilizes a sleek, dark-canvas theme explicitly calibrated to minimize eye strain during continuous operations monitoring:Token VariableHex CodeApplied System Role--bg-canvas#090d16Main underlying view canvas layer background--panel-bg#131b2ePrimary telemetry block cards & data container panels--color-primary#3b82f6
+Telemetry Grid Framework: Includes structural visualizers for tracking core testing metrics, automation stability rates, and live blocker matrices.
+
+Design Tokens & CSS Custom Properties: Built on a unified modular theme matrix (:root) enabling immediate global adjustments to spacing, typography, panel borders, and real-time state color indicators.
+
+High-Performance Typography: Tailored font weights blending Inter for seamless cross-browser UI scannability and JetBrains Mono for low-level technical telemetry arrays, data timestamps, and log values.
+
+Dynamic Responsive Translation System: Features a fluid mobile-first responsive layout matrix that reconstructs the structural desktop view into an optimized mobile experience under 768px.
